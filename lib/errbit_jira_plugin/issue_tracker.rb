@@ -31,6 +31,11 @@ module ErrbitJiraPlugin
       :issue_priority => {
           :label => 'Priority',
           :placeholder => 'Normal'
+      },
+      :issue_type_id => {
+          :optional => true,
+          :label => 'Issue Type ID (found under issues in JIRA)',
+          :placeholder => "10004"
       }
     }
 
@@ -74,7 +79,7 @@ module ErrbitJiraPlugin
 
     def errors
       errors = []
-      if self.class.fields.detect {|f| options[f[0]].blank? }
+      if self.class.fields.detect {|f| options[f[0]].blank? && !f[1][:optional]}
         errors << [:base, 'You must specify all non optional values!']
       end
       errors
@@ -107,7 +112,7 @@ module ErrbitJiraPlugin
                             "summary" => title,
                             "description" => body,
                             "project"=> {"id"=> project.id},
-                            "issuetype"=>{"id"=>"3"},
+                            "issuetype"=>{"id"=> issue_type_id},
                             "priority"=>{"name"=>params['issue_priority']}
                           }
                         }
@@ -141,6 +146,14 @@ module ErrbitJiraPlugin
         ''
       else
         params['context_path']
+      end
+    end
+
+    def issue_type_id
+      if params['issue_type_id'].blank?
+        '10004'
+      else
+        params['issue_type_id']
       end
     end
 
