@@ -125,14 +125,14 @@ module ErrbitJiraPlugin
           raise "Jira validation errors: #{jira_issue.errors}"
         end
 
-        jira_url(options['project_id'])
+        jira_url(jira_issue.key)
       rescue JIRA::HTTPError
         raise ErrbitJiraPlugin::IssueError, "Could not create an issue with Jira.  Please check your credentials."
       end
     end
 
-    def jira_url(project_id)
-      "#{options['base_url']}#{options['context_path']}browse/#{project_id}"
+    def jira_url(issue_key)
+      "#{options['base_url']}#{options['context_path']}browse/#{issue_key}"
     end
 
     def url
