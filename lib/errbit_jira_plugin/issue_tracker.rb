@@ -74,7 +74,7 @@ module ErrbitJiraPlugin
     end
 
     def configured?
-      params['project_id'].present?
+      options['project_id'].present?
     end
 
     def errors
@@ -91,9 +91,9 @@ module ErrbitJiraPlugin
 
     def jira_options
       {
-        :username => params['username'],
-        :password => params['password'],
-        :site => params['base_url'],
+        :username => options['username'],
+        :password => options['password'],
+        :site => options['base_url'],
         :auth_type => :basic,
         :context_path => context_path
       }
@@ -102,7 +102,7 @@ module ErrbitJiraPlugin
     def create_issue(title, body, user: {})
       begin
         client = JIRA::Client.new(jira_options)
-        project = client.Project.find(params['project_id'])
+        project = client.Project.find(options['project_id'])
 
         # Remove any newlines from the title
         title.delete!("\n")
@@ -113,7 +113,7 @@ module ErrbitJiraPlugin
                             "description" => body,
                             "project"=> {"id"=> project.id},
                             "issuetype"=>{"id"=> issue_type_id},
-                            "priority"=>{"name"=>params['issue_priority']}
+                            "priority"=>{"name"=>options['issue_priority']}
                           }
                         }
 
@@ -125,40 +125,37 @@ module ErrbitJiraPlugin
           raise "Jira validation errors: #{jira_issue.errors}"
         end
 
-        jira_url(params['project_id'])
+        jira_url(options['project_id'])
       rescue JIRA::HTTPError
         raise ErrbitJiraPlugin::IssueError, "Could not create an issue with Jira.  Please check your credentials."
       end
     end
 
     def jira_url(project_id)
-      "#{params['base_url']}#{params['context_path']}browse/#{project_id}"
+      "#{options['base_url']}#{options['context_path']}browse/#{project_id}"
     end
 
     def url
-      params['base_url']
+      options['base_url']
     end
 
     private
 
     def context_path
-      if params['context_path'] == '/'
+      if options['context_path'] == '/'
         ''
       else
-        params['context_path']
+        options['context_path']
       end
     end
 
     def issue_type_id
-      if params['issue_type_id'].blank?
+      if options['issue_type_id'].blank?
         '10004'
       else
-        params['issue_type_id']
+        options['issue_type_id']
       end
     end
 
-    def params
-      options
-    end
   end
 end
