@@ -99,6 +99,9 @@ module ErrbitJiraPlugin
         client = JIRA::Client.new(jira_options)
         project = client.Project.find(params['project_id'])
 
+        # Remove any newlines from the title
+        title.delete!("\n")
+
         issue_fields =  {
                           "fields" => {
                             "summary" => title,
