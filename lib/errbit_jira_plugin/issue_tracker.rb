@@ -65,13 +65,10 @@ module ErrbitJiraPlugin
       }
     end
 
-    def self.body_template
-      @body_template ||= ERB.new(File.read(
-        File.join(
-          ErrbitJiraPlugin.root, 'views', 'jira_issues_body.txt.erb'
-        )
-      ))
+    def render_body_args
+      ['/jira_issues_body', formats: [:txt]]
     end
+
 
     def configured?
       options['project_id'].present?
